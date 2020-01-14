@@ -1,6 +1,7 @@
-import React from 'react';
+import React, {useState} from 'react';
 import axios from 'axios';
 import useAsync from './useAsync';
+import User from './User';
 
 async function getUsers() {
   const url = 'https://jsonplaceholder.typicode.com/users';
@@ -9,7 +10,8 @@ async function getUsers() {
 }
 
 const Users = () => {
-  const [state, refetch] = useAsync(getUsers, []); // 빈배열은 처음 실행할때 한번만 호출한다는 것
+  const [state, refetch] = useAsync(getUsers, [], true); // true: 처음 렌더링 요청 생략
+  const [userId, setUserId] = useState(null);
   const {loading, data: users, error} = state;
   // 로딩중일 때
   if(loading) return <div>로딩중</div>
@@ -25,14 +27,19 @@ const Users = () => {
     )
   }
   // 데이터가 없을때
-  if(!users) return null;
+  if(!users) return <button onClick={refetch}>API 요청</button>;
   // 성공했을 때
   return (
     <>
     <ul>
-      {users.map(user => <li key={user.id}>{user.username} {user.name}</li>)}
+      {users.map(user => (
+        <li key={user.id} onClick={() => setUserId(user.id)}>
+          {user.username} {user.name}
+        </li>
+      ))}
     </ul>
     <button onClick={refetch}>API 재요청</button>
+    {userId && <User id={userId} />}
     </>
   );
 };

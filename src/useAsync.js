@@ -36,7 +36,7 @@ function reducer(state, action) {
 }
 
 // callback: API호출함수, deps: useEffect 두번째 파라미터로 사용하는 []
-function useAsync(callback, deps=[]) {
+function useAsync(callback, deps=[], skip=false) {
   // 사용할 reducer와 초기상태를 대입해서 관리한다.
   const [state, dispatch] = useReducer(reducer, initialState);
 
@@ -52,6 +52,8 @@ function useAsync(callback, deps=[]) {
   }, [callback]);
 
   useEffect(() => {
+    if(skip) return;
+    
     fetchData();
     // eslint-disable-next-line
   }, deps);
