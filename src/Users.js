@@ -6,24 +6,25 @@ const Users = () => {
   const [loading, setLoading] = useState(false); // 로딩 상태
   const [error, setError] = useState(null);      // 에러 핸들링
 
+  const fetchUsers = async () => {
+    try {
+      // 초기화
+      setUsers(null);
+      setError(null);
+      setLoading(true);
+
+      const url = 'https://jsonplaceholder.typicode.com/users';
+      const response = await axios.get(url);
+      setUsers(response.data);
+    } catch (e) {
+      console.dir(e.toJSON());
+      setError(e);
+    }
+    setLoading(false); // 로딩이 끝난 것을 알림
+  };
+
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        // 초기화
-        setUsers(null);
-        setError(null);
-        setLoading(true);
-
-        const url = 'https://jsonplaceholder.typicode.com/users/asdasdasd';
-        const response = await axios.get(url);
-        setUsers(response.data);
-      } catch (e) {
-        console.dir(e.toJSON());
-        setError(e);
-      }
-      setLoading(false); // 로딩이 끝난 것을 알림
-    };
-
+    // 초기 API 요청
     fetchUsers();
   }, []);
 
@@ -43,9 +44,12 @@ const Users = () => {
   if(!users) return null;
 
   return (
+    <>
     <ul>
       {users.map(user => <li key={user.id}>{user.username} {user.name}</li>)}
     </ul>
+    <button onClick={fetchUsers}>API 재요청</button>
+    </>
   );
 };
 
