@@ -1,23 +1,20 @@
 import React, {useState} from 'react';
-import axios from 'axios';
-// import useAsync from './useAsync';
-import { useAsync } from 'react-async'; // 라이브러리 사용
 import User from './User';
-
-async function getUsers() {
-  const url = 'https://jsonplaceholder.typicode.com/users';
-  const response = await axios.get(url);
-  return response.data;
-}
+import { useUsersState, useUsersDispatch, getUsers } from './usersContext';
 
 const Users = () => {
-  const { data:users, error, isLoading,  run } = useAsync({
-    deferFn: getUsers
-  });
-  
   const [userId, setUserId] = useState(null);
+  const state = useUsersState();
+  const dispatch = useUsersDispatch();
+
+  const { loading, data: users, error } = state.users;
+
+  const fetchData = () => {
+    getUsers(dispatch);
+  }
+
   // 로딩중일 때
-  if(isLoading) return <div>로딩중</div>
+  if(loading) return <div>로딩중</div>
   // 에러났을 때
   if(error) {
     const errCode = error.response.status
@@ -30,7 +27,7 @@ const Users = () => {
     )
   }
   // 데이터가 없을때
-  if(!users) return <button onClick={run}>API 요청</button>;
+  if(!users) return <button onClick={fetchData}>API 요청</button>;
   // 성공했을 때
   return (
     <>
@@ -41,7 +38,7 @@ const Users = () => {
         </li>
       ))}
     </ul>
-    <button onClick={run}>API 재요청</button>
+    <button onClick={fetchData}>API 재요청</button>
     {userId && <User id={userId} />}
     </>
   );

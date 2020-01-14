@@ -1,25 +1,18 @@
-import React from 'react';
-import axios from 'axios';
-// import useAsync from './useAsync';
-import { useAsync } from 'react-async'; // 라이브러리 사용
-
-async function getUser({id}) {
-  const url = `https://jsonplaceholder.typicode.com/users/${id}`;
-  const response = await axios.get(url);
-  return response.data;
-}
+import React, {useEffect} from 'react';
+import { useUsersState, useUsersDispatch, getUser } from './usersContext';
 
 const User = ({ id }) => {
-  const { 
-    data: user, error, isLoading 
-  } = useAsync({
-    promiseFn: getUser,
-    id,
-    watch: id,
-  });
+  const state = useUsersState();
+  const dispatch = useUsersDispatch();
+
+  useEffect(() => {
+    getUser(dispatch, id);
+  }, [dispatch, id]);
+
+  const { loading, data: user, error } = state.user;
 
   // 로딩중일 때
-  if(isLoading) return <div>로딩중</div>
+  if(loading) return <div>로딩중</div>
   // 에러났을 때
   if(error) return <div>에러 발생</div>
   // 데이터가 없을때
