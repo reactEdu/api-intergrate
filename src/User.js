@@ -1,20 +1,25 @@
 import React from 'react';
 import axios from 'axios';
-import useAsync from './useAsync';
+// import useAsync from './useAsync';
+import { useAsync } from 'react-async'; // 라이브러리 사용
 
-async function getUser(id) {
+async function getUser({id}) {
   const url = `https://jsonplaceholder.typicode.com/users/${id}`;
   const response = await axios.get(url);
   return response.data;
 }
 
 const User = ({ id }) => {
-  // useAsync의 첫번째 콜백함수 부분에 익명함수를 바로 대입
-  const [state] = useAsync(() => getUser(id), [id]);
-  const {loading, data: user, error } = state;
+  const { 
+    data: user, error, isLoading 
+  } = useAsync({
+    promiseFn: getUser,
+    id,
+    watch: id,
+  });
 
   // 로딩중일 때
-  if(loading) return <div>로딩중</div>
+  if(isLoading) return <div>로딩중</div>
   // 에러났을 때
   if(error) return <div>에러 발생</div>
   // 데이터가 없을때

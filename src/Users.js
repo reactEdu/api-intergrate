@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import axios from 'axios';
-import useAsync from './useAsync';
+// import useAsync from './useAsync';
+import { useAsync } from 'react-async'; // 라이브러리 사용
 import User from './User';
 
 async function getUsers() {
@@ -10,11 +11,13 @@ async function getUsers() {
 }
 
 const Users = () => {
-  const [state, refetch] = useAsync(getUsers, [], true); // true: 처음 렌더링 요청 생략
+  const { data:users, error, isLoading,  run } = useAsync({
+    deferFn: getUsers
+  });
+  
   const [userId, setUserId] = useState(null);
-  const {loading, data: users, error} = state;
   // 로딩중일 때
-  if(loading) return <div>로딩중</div>
+  if(isLoading) return <div>로딩중</div>
   // 에러났을 때
   if(error) {
     const errCode = error.response.status
@@ -27,7 +30,7 @@ const Users = () => {
     )
   }
   // 데이터가 없을때
-  if(!users) return <button onClick={refetch}>API 요청</button>;
+  if(!users) return <button onClick={run}>API 요청</button>;
   // 성공했을 때
   return (
     <>
@@ -38,7 +41,7 @@ const Users = () => {
         </li>
       ))}
     </ul>
-    <button onClick={refetch}>API 재요청</button>
+    <button onClick={run}>API 재요청</button>
     {userId && <User id={userId} />}
     </>
   );
