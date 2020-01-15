@@ -15,3 +15,56 @@ export default function createAsyncDispatcher(type, promiseFn) {
 
   return actionHandler;
 }
+
+export const initialAsyncState = {
+  loading: false,
+  data: null,
+  error: null,
+};
+
+const loadingState = {
+  loading: true,
+  data: null,
+  error: null,
+};
+
+const success = (data) => ({
+  loading: false,
+  data,
+  error: null,
+});
+
+const error = (e) => ({
+  loading: false,
+  data: null,
+  error: e,
+});
+
+export function createAsyncHandler(type, key) { // 액션타입, state내부의 키
+  const SUCCESS = `${type}_SUCCESS`;
+  const ERROR = `${type}_ERROR`;
+
+  function handler(state, action) {
+    switch (action.type) {
+      case type:
+        return {
+          ...state,
+          [key]: loadingState,
+        }
+      case SUCCESS:
+        return {
+          ...state,
+          [key]: success(action.data),
+        }
+      case ERROR:
+        return {
+          ...state,
+          [key]: error(action.error),
+        }
+      default:
+        return state;
+    }
+  }
+
+  return handler;
+}

@@ -1,38 +1,11 @@
 import React, { createContext, useReducer, useContext } from 'react';
 import * as api from './api'; // api.js의 함수들 모두 객체로 가져옴
-import createAsyncDispatcher from './asyncActionUtils';
+import createAsyncDispatcher, { initialAsyncState, createAsyncHandler } from './asyncActionUtils';
 
 const initialState = {
-  users: {
-    loading: false,
-    data: null,
-    error: null,
-  },
-  user: {
-    loading: false,
-    data: null,
-    error: null,
-  }
+  users: initialAsyncState,
+  user: initialAsyncState
 }
-
-// 두번씩 사용되는 상태들이므로 변수로 뺌
-const loadingState = {
-  loading: true,
-  data: null,
-  error: null,
-}
-
-const success = (data) => ({
-  loading: false,
-  data,
-  error: null,
-});
-
-const error = (e) => ({
-  loading: false,
-  data: null,
-  error: e,
-});
 
 const GET_USERS = 'GET_USERS';
 const GET_USERS_SUCCESS = 'GET_USERS_SUCCESS';
@@ -41,38 +14,20 @@ const GET_USER = 'GET_USER';
 const GET_USER_SUCCESS = 'GET_USER_SUCCESS';
 const GET_USER_ERROR = 'GET_USER_ERROR';
 
+const usersHandler = createAsyncHandler(GET_USERS, 'users');
+const userHandler = createAsyncHandler(GET_USER, 'user');
+
 function usersReducer(state, action) {
   switch (action.type) {
     case GET_USERS:
-      return {
-        ...state,
-        users: loadingState,
-      }
     case GET_USERS_SUCCESS:
-      return {
-        ...state,
-        users: success(action.data),
-      }
     case GET_USERS_ERROR:
-      return {
-        ...state,
-        users: error(action.error),
-      }
+      return usersHandler(state, action)
+
     case GET_USER:
-      return {
-        ...state,
-        user: loadingState,
-      }
     case GET_USER_SUCCESS:
-      return {
-        ...state,
-        user: success(action.data),
-      }
     case GET_USER_ERROR:
-      return {
-        ...state,
-        user: error(action.error),
-      }
+      return userHandler(state, action)
 
     default:
       throw new Error(`Unhandled Action Type: ${action.type}`);
