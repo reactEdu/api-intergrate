@@ -1,5 +1,6 @@
 import React, { createContext, useReducer, useContext } from 'react';
-import axios from 'axios';
+import * as api from './api'; // api.js의 함수들 모두 객체로 가져옴
+import createAsyncDispatcher from './asyncActionUtils';
 
 const initialState = {
   users: {
@@ -110,22 +111,5 @@ export function useUsersDispatch() {
   return dispatch;
 }
 
-export async function getUsers(dispatch){
-  dispatch({type: GET_USERS}); // API 요청 시작을 알림
-  try {
-    const response = await axios.get(`https://jsonplaceholder.typicode.com/users/`);
-    dispatch({type: GET_USERS_SUCCESS, data: response.data}); // 성공
-  } catch (e) {
-    dispatch({type: GET_USERS_ERROR, error: e}); // 에러
-  }
-}
-
-export async function getUser(dispatch, id){
-  dispatch({type: GET_USER});
-  try {
-    const response = await axios.get(`https://jsonplaceholder.typicode.com/users/${id}`);
-    dispatch({type: GET_USER_SUCCESS, data: response.data});
-  } catch (e) {
-    dispatch({type: GET_USER_ERROR, error: e});
-  }
-}
+export const getUsers = createAsyncDispatcher(GET_USERS, api.getUsers);
+export const getUser = createAsyncDispatcher(GET_USER, api.getUser);
